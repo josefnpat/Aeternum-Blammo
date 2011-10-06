@@ -190,16 +190,16 @@ function love.update(dt)
 		  Position = {x = math.random(0,1)*1000-100, y = math.random(0,800)-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel*4,
-		  maxhealth = spritesel*4
+		  health = spritesel*2,
+		  maxhealth = spritesel*2
 	  }
 		table.insert(Enemies,Enemy)
 	  local Enemy = {
 		  Position = {x = math.random(0,1000)-100, y = math.random(0,1)*800-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel*4,
-		  maxhealth = spritesel*4
+		  health = spritesel*2,
+		  maxhealth = spritesel*2
 	  }
 		table.insert(Enemies,Enemy)
 	end
