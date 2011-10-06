@@ -1,6 +1,11 @@
+require("socket")-- For socket.gettime()*1000
+
+music = love.audio.newSource("space_party.mp3")
+love.audio.play(music)
+
 --this you can change if you want
 local ShootRate = 0.05--how smaller how faster
-local InitEnemieRate = .2--how smaller how faster
+local InitEnemieRate = 2--how smaller how faster
 local BulletSpeed = 600--how bigger how faster
 local ShipSpeed = 150--how bigger how faster
 local InitEnemieSpeed = 50--how bigger how faster
@@ -20,22 +25,51 @@ local ShipOffset = {x = love.graphics.newImage("Ship.png"):getWidth()/2,y = love
 
 local Bullets = {}
 local BulletImage = love.graphics.newImage("Bullet.png")
-local BulletScale = {x = BulletSize/BulletImage:getWidth(), y = BulletSize/BulletImage:getHeight()}
-local BulletOffset = {x = BulletImage:getWidth()/2,y = BulletImage:getHeight()/2}
+
+local bulletquad = {}
+bulletquad[0] = love.graphics.newQuad(0,0,48,48,240,48)
+bulletquad[1] = love.graphics.newQuad(48,0,48,48,240,48)
+bulletquad[2] = love.graphics.newQuad(96,0,48,48,240,48)
+bulletquad[3] = love.graphics.newQuad(144,0,48,48,240,48)
+bulletquad[4] = love.graphics.newQuad(192,0,48,48,240,48)
+bulletquad[5] = love.graphics.newQuad(240,0,48,48,240,48)
+
+local BulletScale = 1
+local BulletOffset = 24
 local BulletTimer = 0
 
 local Enemies = {}
-local EnemieImage1 = love.graphics.newImage("Enemy1.png")
-local EnemieImage2 = love.graphics.newImage("Enemy2.png")
-local EnemieImage3 = love.graphics.newImage("Enemy3.png")
-local EnemieImage4 = love.graphics.newImage("Enemy4.png")
-local EnemieImage5 = love.graphics.newImage("Enemy5.png")
-local EnemieImage6 = love.graphics.newImage("Enemy6.png")
-local EnemieImage7 = love.graphics.newImage("Enemy7.png")
-local EnemieImage8 = love.graphics.newImage("Enemy8.png")
-local EnemieScale = {x = EnemieSize/EnemieImage1:getWidth(), y = EnemieSize/EnemieImage1:getHeight()}
-local EnemieOffset = {x = EnemieImage1:getWidth()/2,y = EnemieImage1:getHeight()/2}
+local EnemyImage = {}
+EnemyImage[1] = love.graphics.newImage("Enemy1.png")
+EnemyImage[2] = love.graphics.newImage("Enemy2.png")
+EnemyImage[3] = love.graphics.newImage("Enemy3.png")
+EnemyImage[4] = love.graphics.newImage("Enemy4.png")
+EnemyImage[5] = love.graphics.newImage("Enemy5.png")
+EnemyImage[6] = love.graphics.newImage("Enemy6.png")
+EnemyImage[7] = love.graphics.newImage("Enemy7.png")
+EnemyImage[8] = love.graphics.newImage("Enemy8.png")
+local EnemieScale = {x = EnemieSize/EnemyImage[1]:getWidth(), y = EnemieSize/EnemyImage[1]:getHeight()}
+local EnemieOffset = {x = EnemyImage[1]:getWidth()/2,y = EnemyImage[1]:getHeight()/2}
 local EnemieTimer = 0
+
+local hb = {}
+hb[0] = love.graphics.newImage("hb_0.png")
+hb[1] = love.graphics.newImage("hb_1.png")
+hb[2] = love.graphics.newImage("hb_2.png")
+hb[3] = love.graphics.newImage("hb_3.png")
+hb[4] = love.graphics.newImage("hb_4.png")
+hb[5] = love.graphics.newImage("hb_5.png")
+hb[6] = love.graphics.newImage("hb_6.png")
+hb[7] = love.graphics.newImage("hb_7.png")
+hb[8] = love.graphics.newImage("hb_8.png")
+hb[9] = love.graphics.newImage("hb_9.png")
+hb[10] = love.graphics.newImage("hb_10.png")
+hb[11] = love.graphics.newImage("hb_11.png")
+hb[12] = love.graphics.newImage("hb_12.png")
+hb[13] = love.graphics.newImage("hb_13.png")
+hb[14] = love.graphics.newImage("hb_14.png")
+hb[15] = love.graphics.newImage("hb_15.png")
+hb[16] = love.graphics.newImage("hb_16.png")
 
 local score = 0
 local topscore = 0
@@ -44,6 +78,31 @@ local EnemieSpeed = InitEnemieSpeed
 
 local bg = love.graphics.newImage("bg.png")
 
+local explosion = love.graphics.newImage("explosion.png")
+
+quad = {}
+
+quad[0] = love.graphics.newQuad(0,0,64,64,256,256)
+quad[1] = love.graphics.newQuad(64,0,64,64,256,256)
+quad[2] = love.graphics.newQuad(128,0,64,64,256,256)
+quad[3] = love.graphics.newQuad(192,0,64,64,256,256)
+
+quad[4] = love.graphics.newQuad(0,64,64,64,256,256)
+quad[5] = love.graphics.newQuad(64,64,64,64,256,256)
+quad[6] = love.graphics.newQuad(128,64,64,64,256,256)
+quad[7] = love.graphics.newQuad(192,64,64,64,256,256)
+
+quad[8] = love.graphics.newQuad(0,128,64,64,256,256)
+quad[9] = love.graphics.newQuad(64,128,64,64,256,256)
+quad[10] = love.graphics.newQuad(128,128,64,64,256,256)
+quad[11] = love.graphics.newQuad(192,128,64,64,256,256)
+
+quad[12] = love.graphics.newQuad(0,192,64,64,256,256)
+quad[13] = love.graphics.newQuad(64,192,64,64,256,256)
+quad[14] = love.graphics.newQuad(128,192,64,64,256,256)
+quad[15] = love.graphics.newQuad(192,192,64,64,256,256)
+
+local exp = {}
 function love.update(dt)
 	BulletTimer = BulletTimer + dt
 	EnemieTimer = EnemieTimer + dt
@@ -55,7 +114,17 @@ function love.update(dt)
 		for ei,e in pairs(Enemies) do
 			distance = ((e.Position.x-b.Position.x)^2+(e.Position.y-b.Position.y)^2)^0.5
 			if distance < EnemieSize/2+BulletSize/2 then
-				table.remove(Enemies,ei)
+			  if e.health == 1 then
+			    local Boom = {
+			      x = e.Position.x,
+			      y = e.Position.y,
+			      time = socket.gettime()
+			    }
+  				table.insert(exp,Boom)
+  				table.remove(Enemies,ei)
+			  else
+			    e.health = e.health - 1
+			  end
 				table.remove(Bullets,bi)
 				score = score + 1
 				EnemieRate = EnemieRate - 0.0002
@@ -79,6 +148,7 @@ function love.update(dt)
 		if distance < EnemieSize/2+ShipSize/2 then
 			Enemies = {}
 			Bullets = {}
+			exp = {}
 			Ship.Position.x = 400
 			Ship.Position.y = 300
 			EnemieRate = InitEnemieRate
@@ -87,6 +157,8 @@ function love.update(dt)
  			 topscore = score
 			end
 			score = 0
+			love.audio.stop()
+			love.audio.play(music)
 		end
 	end
 	--direct ship to mouse
@@ -110,49 +182,53 @@ function love.update(dt)
 	--make Enemy
 	if EnemieTimer > EnemieRate then
 		EnemieTimer = 0
-		local Enemy = {
-			Position = {x = math.random(0,1)*800, y = math.random(0,600)},
-			Direction = 0,
-			sprite = math.random(1,8)
-		}
+		local spritesel = 9-round(math.log10(math.random(1,100000000))-score*.01)
+		if spritesel > 8 then
+		  spritesel = 8
+		end
+	  local Enemy = {
+		  Position = {x = math.random(0,1)*1000-100, y = math.random(0,800)-100},
+		  Direction = 0,
+		  sprite = spritesel,
+		  health = spritesel*4,
+		  maxhealth = spritesel*4
+	  }
 		table.insert(Enemies,Enemy)
-		
-		local Enemy = {
-			Position = {x = math.random(0,800), y = math.random(0,1)*600},
-			Direction = 0
-		}
+	  local Enemy = {
+		  Position = {x = math.random(0,1000)-100, y = math.random(0,1)*800-100},
+		  Direction = 0,
+		  sprite = spritesel,
+		  health = spritesel*4,
+		  maxhealth = spritesel*4
+	  }
 		table.insert(Enemies,Enemy)
 	end
 end
 function love.draw()
-
 	love.graphics.draw(bg,Ship.Position.x/5-800,Ship.Position.y/5-600,0,1,1,0,0)
+	for i,v in pairs(exp) do
+    cur = round ( (socket.gettime() - v.time) * 10 )
+    if cur > 15 then
+      cur = 15
+      table.remove(exp,i)
+    end
+		love.graphics.drawq(explosion,quad[cur],v.x-51/2,v.y-51/2)
+	end
 	for i,v in pairs(Bullets) do
-		love.graphics.draw(BulletImage,v.Position.x,v.Position.y,v.Direction,BulletScale.x,BulletScale.y,BulletOffset.x,BulletOffset.y)
+	  cur = (round(socket.gettime() * 10) + i) % 5 
+		love.graphics.drawq(BulletImage,bulletquad[cur],v.Position.x,v.Position.y,v.Direction,BulletScale,BulletScale,BulletOffset,BulletOffset)
 	end
 	for i,v in pairs(Enemies) do
-	  if v.sprite == 1 then
-	    cur = EnemieImage1
-	  elseif v.sprite == 2 then
-	    cur = EnemieImage2
-	  elseif v.sprite == 3 then
-	    cur = EnemieImage3
-	  elseif v.sprite == 4 then
-	    cur = EnemieImage4
-	  elseif v.sprite == 5 then
-	    cur = EnemieImage5
-	  elseif v.sprite == 6 then
-	    cur = EnemieImage6
-	  elseif v.sprite == 7 then
-	    cur = EnemieImage7
-	  else
-  	  cur = EnemieImage8
-	  end
-		love.graphics.draw(cur,v.Position.x,v.Position.y,v.Direction,EnemieScale.x,EnemieScale.y,EnemieOffset.x,EnemieOffset.y)
+		love.graphics.draw(EnemyImage[v.sprite],v.Position.x,v.Position.y,v.Direction,EnemieScale.x,EnemieScale.y,EnemieOffset.x,EnemieOffset.y)
+		local curhealth = round(v.health / v.maxhealth * 16,0)
+		love.graphics.draw(hb[curhealth],v.Position.x,v.Position.y+51,0,.35,1,EnemieOffset.x,EnemieOffset.y)
 	end
 	love.graphics.draw(ShipImage,Ship.Position.x,Ship.Position.y,Ship.Direction,ShipScale.x,ShipScale.y,ShipOffset.x,ShipOffset.y)
   love.graphics.print('Score:'..score, Ship.Position.x + 32, Ship.Position.y + 32)
   love.graphics.print('Top Score:'..topscore, Ship.Position.x + 32, Ship.Position.y + 48)
 end
 
-
+function round(num, idp)
+  local mult = 10^(idp or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
