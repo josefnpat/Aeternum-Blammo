@@ -1,6 +1,6 @@
 require("socket")-- For socket.gettime()*1000
 
-music = love.audio.newSource("space_party.mp3")
+music = love.audio.newSource("assets/space_party.mp3")
 love.audio.play(music)
 
 local playernum = 1
@@ -18,14 +18,14 @@ local Ship = {
 	Position = {x = 300, y = 300},
 	Direction = 0
 }
-local TitleImage = love.graphics.newImage("title.png")
-local ShipImage = love.graphics.newImage("player1.png")
+local TitleImage = love.graphics.newImage("assets/title.png")
+local ShipImage = love.graphics.newImage("assets/player1.png")
 local ShipScale = {x = .5, y = .5}
 local ShipOffset = {x = 64,y = 64}
 
 local Bullets = {}
-local MissileImage = love.graphics.newImage("Missile.png")
-local MineImage = love.graphics.newImage("Mine.png")
+local MissileImage = love.graphics.newImage("assets/Missile.png")
+local MineImage = love.graphics.newImage("assets/Mine.png")
 
 local bulletquad = {}
 bulletquad[0] = love.graphics.newQuad(0,0,48,48,240,48)
@@ -41,46 +41,46 @@ local BulletTimer = 0
 
 local Enemies = {}
 local EnemyImage = {}
-EnemyImage[1] = love.graphics.newImage("Enemy1.png")
-EnemyImage[2] = love.graphics.newImage("Enemy2.png")
-EnemyImage[3] = love.graphics.newImage("Enemy3.png")
-EnemyImage[4] = love.graphics.newImage("Enemy4.png")
-EnemyImage[5] = love.graphics.newImage("Enemy5.png")
-EnemyImage[6] = love.graphics.newImage("Enemy6.png")
-EnemyImage[7] = love.graphics.newImage("Enemy7.png")
-EnemyImage[8] = love.graphics.newImage("Enemy8.png")
+EnemyImage[1] = love.graphics.newImage("assets/Enemy1.png")
+EnemyImage[2] = love.graphics.newImage("assets/Enemy2.png")
+EnemyImage[3] = love.graphics.newImage("assets/Enemy3.png")
+EnemyImage[4] = love.graphics.newImage("assets/Enemy4.png")
+EnemyImage[5] = love.graphics.newImage("assets/Enemy5.png")
+EnemyImage[6] = love.graphics.newImage("assets/Enemy6.png")
+EnemyImage[7] = love.graphics.newImage("assets/Enemy7.png")
+EnemyImage[8] = love.graphics.newImage("assets/Enemy8.png")
 local EnemyScale = {x = .5, y = .5}
 local EnemyOffset = {x = 32,y = 32}
 local EnemyTimer = 0
 
 local hb = {}
-hb[0] = love.graphics.newImage("hb_0.png")
-hb[1] = love.graphics.newImage("hb_1.png")
-hb[2] = love.graphics.newImage("hb_2.png")
-hb[3] = love.graphics.newImage("hb_3.png")
-hb[4] = love.graphics.newImage("hb_4.png")
-hb[5] = love.graphics.newImage("hb_5.png")
-hb[6] = love.graphics.newImage("hb_6.png")
-hb[7] = love.graphics.newImage("hb_7.png")
-hb[8] = love.graphics.newImage("hb_8.png")
-hb[9] = love.graphics.newImage("hb_9.png")
-hb[10] = love.graphics.newImage("hb_10.png")
-hb[11] = love.graphics.newImage("hb_11.png")
-hb[12] = love.graphics.newImage("hb_12.png")
-hb[13] = love.graphics.newImage("hb_13.png")
-hb[14] = love.graphics.newImage("hb_14.png")
-hb[15] = love.graphics.newImage("hb_15.png")
-hb[16] = love.graphics.newImage("hb_16.png")
+hb[0] = love.graphics.newImage("assets/hb_0.png")
+hb[1] = love.graphics.newImage("assets/hb_1.png")
+hb[2] = love.graphics.newImage("assets/hb_2.png")
+hb[3] = love.graphics.newImage("assets/hb_3.png")
+hb[4] = love.graphics.newImage("assets/hb_4.png")
+hb[5] = love.graphics.newImage("assets/hb_5.png")
+hb[6] = love.graphics.newImage("assets/hb_6.png")
+hb[7] = love.graphics.newImage("assets/hb_7.png")
+hb[8] = love.graphics.newImage("assets/hb_8.png")
+hb[9] = love.graphics.newImage("assets/hb_9.png")
+hb[10] = love.graphics.newImage("assets/hb_10.png")
+hb[11] = love.graphics.newImage("assets/hb_11.png")
+hb[12] = love.graphics.newImage("assets/hb_12.png")
+hb[13] = love.graphics.newImage("assets/hb_13.png")
+hb[14] = love.graphics.newImage("assets/hb_14.png")
+hb[15] = love.graphics.newImage("assets/hb_15.png")
+hb[16] = love.graphics.newImage("assets/hb_16.png")
 
 local score = 0
 local topscore = 0
 local EnemyRate = InitEnemyRate
 local EnemySpeed = InitEnemySpeed
 
-local bg = love.graphics.newImage("bg.jpg")
-local SideImage = love.graphics.newImage("side.png")
+local bg = love.graphics.newImage("assets/bg.jpg")
+local SideImage = love.graphics.newImage("assets/side.png")
 
-local explosion = love.graphics.newImage("explosion.png")
+local explosion = love.graphics.newImage("assets/explosion.png")
 
 quad = {}
 
