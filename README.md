@@ -3,12 +3,12 @@ Aeternum Blammo
 
 Controls
 --------
-Right Mouse Button : Shoot To Cursor
-Left Mouse Button  : Move To Cursor
-1                  : Switch To Missiles
-2                  : Switch To Mines
-f11                : Fullscreen
-esc                : Quit
+Right Mouse Button - Shoot To Cursor  
+Left Mouse Button - Move To Cursor  
+1 - Switch To Missiles  
+2 - Switch To Mines  
+f11 - Fullscreen  
+esc - Quit  
 
 Screenshot
 ----------
