@@ -11,7 +11,6 @@ local ShipSpeed = 150
 local InitEnemySpeed = 25
 local ShipSize = 128
 local BulletSize = 48
-local EnemySize = 64
 
 math.randomseed(os.time())
 local Ship = {
@@ -21,7 +20,10 @@ local Ship = {
 local TitleImage = love.graphics.newImage("assets/title.png")
 local ShipImage = love.graphics.newImage("assets/player1.png")
 local ShipScale = {x = .5, y = .5}
-local ShipOffset = {x = 64,y = 64}
+local ShipOffset = {x = ShipImage:getWidth()/2,y = ShipImage:getHeight()/2}
+
+local RepairImage = love.graphics.newImage("assets/repair.png")
+local Items = {}
 
 local Bullets = {}
 local MissileImage = love.graphics.newImage("assets/Missile.png")
@@ -49,8 +51,16 @@ EnemyImage[5] = love.graphics.newImage("assets/Enemy5.png")
 EnemyImage[6] = love.graphics.newImage("assets/Enemy6.png")
 EnemyImage[7] = love.graphics.newImage("assets/Enemy7.png")
 EnemyImage[8] = love.graphics.newImage("assets/Enemy8.png")
-local EnemyScale = {x = .5, y = .5}
-local EnemyOffset = {x = 32,y = 32}
+local EnemyScale = {x = 1, y = 1}
+local EnemyOffset = {}
+for variable = 1, 8, 1 do
+  EnemyOffset[variable] = {x = EnemyImage[variable]:getWidth()/2,y = EnemyImage[variable]:getHeight()/2}
+end
+local EnemySize = {}
+for variable = 1, 8, 1 do
+  EnemySize[variable] = EnemyImage[variable]:getHeight()
+end
+
 local EnemyTimer = 0
 
 local hb = {}
@@ -76,6 +86,7 @@ local score = 0
 local topscore = 0
 local EnemyRate = InitEnemyRate
 local EnemySpeed = InitEnemySpeed
+local PlayerHealth = 100
 
 local bg = love.graphics.newImage("assets/bg.jpg")
 local SideImage = love.graphics.newImage("assets/side.png")
@@ -119,7 +130,7 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
     ShootRate = .05
   elseif key == "2" then
     bullettype = "Mine"
-    ShootRate = .25
+    ShootRate = .10
   elseif key == "f11" then
     love.graphics.toggleFullscreen()
   end
@@ -130,6 +141,13 @@ local closest
 function love.update(dt)
 	BulletTimer = BulletTimer + dt
 	EnemyTimer = EnemyTimer + dt
+	for ii,i in pairs(Items) do
+		distance = ((i.x-Ship.Position.x)^2+(i.y-Ship.Position.y)^2)^0.5
+		if distance < (ShipSize/2+BulletSize/2)*EnemyScale.x then
+		  PlayerHealth = PlayerHealth + round((100 - PlayerHealth) / 2)
+			table.remove(Items,ii)
+		end
+	end	
 	--make bullets move
 	for bi,b in pairs(Bullets) do
 	  if b.Type == "Missile" then
@@ -139,20 +157,29 @@ function love.update(dt)
 		--collision detection with enemies(SIMPLE DISTANCE CHECK COLLISION DETECTION!!!)
 		for ei,e in pairs(Enemies) do
 			distance = ((e.Position.x-b.Position.x)^2+(e.Position.y-b.Position.y)^2)^0.5
-			if distance < (EnemySize/2+BulletSize/2)/2 then
-			  if e.health <= 1 then
+			if distance < (EnemySize[e.sprite]/2+BulletSize/2)*EnemyScale.x then
+			  if e.health < 1 then
 			    local Boom = {
 			      x = e.Position.x,
 			      y = e.Position.y,
 			      time = socket.gettime()
 			    }
   				table.insert(exp,Boom)
+  				if math.random(1,10) == 1 then
+    				local Item = {
+    				  type = "Health",
+    				  amount = 10,
+			        x = e.Position.x,
+			        y = e.Position.y
+    				}
+    				table.insert(Items,Item)
+    		  end
   				table.remove(Enemies,ei)
 			  else
 			    if b.Type == "Missile" then
-			      e.health = e.health - 1
+			      e.health = e.health - 10
 			    else
-			      e.health = e.health - 5
+			      e.health = e.health - 50
 			    end
 			    if e.health < 0 then
 			      e.health = 0
@@ -160,8 +187,8 @@ function love.update(dt)
 			  end
 				table.remove(Bullets,bi)
 				score = score + 1
-				EnemyRate = EnemyRate - 0.001
-				EnemySpeed = EnemySpeed + 0.05
+				EnemyRate = EnemyRate - 0.00025
+				EnemySpeed = EnemySpeed + 0.0125
 			end
 		end
 		--check if out of screen
@@ -190,24 +217,29 @@ function love.update(dt)
 		  closest.y = e.Position.y
 		end
 		
-		
-		if distance < (EnemySize/2+ShipSize/2)/2 then -- extra div for scale
-			Enemies = {}
-			Bullets = {}
-			exp = {}
-			Ship.Position.x = 300
-			Ship.Position.y = 300
-			EnemyRate = InitEnemyRate
-			EnemySpeed = InitEnemySpeed
-			if score > topscore then
- 			 topscore = score
+		if distance < (EnemySize[e.sprite]/2+ShipSize/2)*EnemyScale.x then -- extra div for scale
+		  PlayerHealth = PlayerHealth - e.health
+		  e.health = 0
+		  if PlayerHealth <= 0 then
+  		  PlayerHealth = 100
+			  Enemies = {}
+			  Bullets = {}
+			  Items = {}
+			  exp = {}
+			  Ship.Position.x = 300
+			  Ship.Position.y = 300
+			  EnemyRate = InitEnemyRate
+			  EnemySpeed = InitEnemySpeed
+			  if score > topscore then
+   			 topscore = score
+			  end
+			  score = 0
+			  bullettype = "Missile"
+			  ShootRate = 0.05
+			  love.audio.stop()
+			  love.audio.play(music)
+			  title_start = socket.gettime()
 			end
-			score = 0
-			bullettype = "Missile"
-			ShootRate = 0.05
-			love.audio.stop()
-			love.audio.play(music)
-			title_start = socket.gettime()
 		end
 	end
 	--direct ship to mouse
@@ -256,16 +288,16 @@ function love.update(dt)
 		  Position = {x = math.random(0,1)*800-100, y = math.random(0,800)-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel*2,
-		  maxhealth = spritesel*2
+		  health = spritesel*10,
+		  maxhealth = spritesel*10
 	  }
 		table.insert(Enemies,Enemy)
 	  local Enemy = {
 		  Position = {x = math.random(0,800)-100, y = math.random(0,1)*800-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel,
-		  maxhealth = spritesel
+		  health = spritesel*10,
+		  maxhealth = spritesel*10
 	  }
 		table.insert(Enemies,Enemy)
 	end
@@ -295,17 +327,22 @@ function love.draw()
 	  end
 		love.graphics.drawq(curimage,bulletquad[cur],v.Position.x,v.Position.y,v.Direction,BulletScale,BulletScale,BulletOffset,BulletOffset)
 	end
+	for ii,i in pairs(Items) do
+	  love.graphics.draw(RepairImage,i.x,i.y,0,1,1,24,24)
+	end
 	for i,v in pairs(Enemies) do
 		local curhealth = round(v.health / v.maxhealth * 16,0)
-		love.graphics.draw(hb[curhealth],v.Position.x-16,v.Position.y+16,0,.25,1,0,0)
-		love.graphics.draw(EnemyImage[v.sprite],v.Position.x,v.Position.y,v.Direction,EnemyScale.x,EnemyScale.y,EnemyOffset.x,EnemyOffset.y)
+		love.graphics.draw(hb[curhealth],v.Position.x-16,v.Position.y+16+2,0,.25*EnemyOffset[v.sprite].x/32,.5*EnemyOffset[v.sprite].y/32,0,0)
+		love.graphics.draw(EnemyImage[v.sprite],v.Position.x,v.Position.y,v.Direction,EnemyScale.x,EnemyScale.y,EnemyOffset[v.sprite].x,EnemyOffset[v.sprite].y)
 	end
 	love.graphics.draw(ShipImage,Ship.Position.x,Ship.Position.y,Ship.Direction,ShipScale.x,ShipScale.y,ShipOffset.x,ShipOffset.y)
-  love.graphics.print("Player "..playernum, Ship.Position.x + 32, Ship.Position.y + 32)  
+	local curhealth = round(PlayerHealth / 100 * 16,0)
   love.graphics.draw(SideImage,600,0)
   love.graphics.print('Score:'..score, 640, 40)
   love.graphics.print('Top Score:'..topscore, 640, 40 + 16)
   love.graphics.print('Weapon:'..bullettype, 640, 40 + 32)
+  love.graphics.print('Health:'..PlayerHealth.."/100", 640, 40 + 48)
+	love.graphics.draw(hb[curhealth],640,40 + 64,math.pi/2,3,16,0,8)
   love.graphics.setColor(255, 255, 255, math.random(64,192))
 	if title_start + 3 > socket.gettime() then
 	  love.graphics.draw(TitleImage,math.random(-5,5),math.random(-5,5)+200,0,.75,.75)
