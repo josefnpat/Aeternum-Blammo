@@ -264,7 +264,6 @@ function love.update(dt)
 			  end
 			  score = 0
 			  bullettype = "Missile"
-			  ShootRate = 0.05
 			  love.audio.stop()
 			  love.audio.play(music)
 			  title_start = socket.gettime()
