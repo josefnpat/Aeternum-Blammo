@@ -245,9 +245,11 @@ function love.update(dt)
 		end
 		
 		if distance < (EnemySize[e.sprite]/2+ShipSize/2)*EnemyScale.x then -- extra div for scale
-		  --PlayerHealth = PlayerHealth - e.health
+		  PlayerHealth = PlayerHealth - e.health
 		  e.health = 0
 		  if PlayerHealth <= 0 then
+  		  ShootRateMult = 0.25
+  		  update_shoot_rate ()
   		  PlayerHealth = 100
 			  Enemies = {}
 			  Bullets = {}
