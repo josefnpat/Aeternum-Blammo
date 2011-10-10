@@ -5,7 +5,7 @@ love.audio.play(music)
 
 local playernum = 1
 
-local InitEnemyRate = 1
+local InitEnemyRate = 1.5
 local BulletSpeed = 300
 local ShipSpeed = 150
 local InitEnemySpeed = 25
