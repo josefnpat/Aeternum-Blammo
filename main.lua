@@ -24,6 +24,8 @@ local ShipOffset = {x = ShipImage:getWidth()/2,y = ShipImage:getHeight()/2}
 
 local RepairImage = love.graphics.newImage("assets/repair.png")
 local SpeedImage = love.graphics.newImage("assets/speed.png")
+local RateImage = love.graphics.newImage("assets/rate.png")
+local DamageImage = love.graphics.newImage("assets/damage.png")
 local Items = {}
 
 local Bullets = {}
@@ -150,6 +152,7 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
 end
 
 local closest
+local damage_mult = 1
 
 function love.update(dt)
 	BulletTimer = BulletTimer + dt
@@ -159,6 +162,10 @@ function love.update(dt)
 		if distance < (ShipSize/2+BulletSize/2)*EnemyScale.x then
 		  if i.type == "Health" then
   		  PlayerHealth = PlayerHealth + round((100 - PlayerHealth) / 2)
+  		elseif i.type == "Speed" then
+  		  ShipSpeed = ShipSpeed + 2*(150/ShipSpeed)
+  		elseif i.type == "Damage" then
+  		  damage_mult = damage_mult + (1/damage_mult)*(1/damage_mult)
   		else
   		  ShootRateMult = ShootRateMult + 0.25
 	      update_shoot_rate()
@@ -183,18 +190,42 @@ function love.update(dt)
 			      time = socket.gettime()
 			    }
   				table.insert(exp,Boom)
+  				if e.Position.x < 12 then
+  				  e.Position.x = 12
+  				end
+  				if e.Position.x > 588 then
+  				  e.Position.x = 588
+  				end
+  				if e.Position.y < 12 then
+  				  e.Position.y = 12
+  				end
+  				if e.Position.y > 588 then
+  				  e.Position.y = 588
+  				end
   				if math.random(1,10) == 1 then
+    				local Item = {
+    				  type = "Rate",
+		          x = e.Position.x,
+		          y = e.Position.y
+    				}
+    				table.insert(Items,Item)
+  				elseif math.random(1,10) == 1 then
+    				local Item = {
+    				  type = "Damage",
+		          x = e.Position.x,
+		          y = e.Position.y
+    				}
+    				table.insert(Items,Item)
+  				elseif math.random(1,10) == 1 then
     				local Item = {
     				  type = "Speed",
 		          x = e.Position.x,
 		          y = e.Position.y
     				}
     				table.insert(Items,Item)
-
   				elseif math.random(1,10) == 1 then
     				local Item = {
     				  type = "Health",
-    				  amount = 10,
 			        x = e.Position.x,
 			        y = e.Position.y
     				}
@@ -203,9 +234,9 @@ function love.update(dt)
   				table.remove(Enemies,ei)
 			  else
 			    if b.Type == "Missile" then
-			      e.health = e.health - 10
+			      e.health = e.health - 10 * damage_mult
 			    else
-			      e.health = e.health - 50
+			      e.health = e.health - 50 * damage_mult
 			    end
 			    if e.health < 0 then
 			      e.health = 0
@@ -213,8 +244,8 @@ function love.update(dt)
 			  end
 				table.remove(Bullets,bi)
 				score = score + 1
-				EnemyRate = EnemyRate - 0.00005
-				EnemySpeed = EnemySpeed + 0.005
+				EnemyRate = EnemyRate - 0.0001
+				EnemySpeed = EnemySpeed + 0.01
 			end
 		end
 		--check if out of screen
@@ -245,12 +276,14 @@ function love.update(dt)
 		end
 		
 		if distance < (EnemySize[e.sprite]/2+ShipSize/2)*EnemyScale.x then -- extra div for scale
-		  PlayerHealth = PlayerHealth - e.health
-		  e.health = 0
+		  PlayerHealth = PlayerHealth - 1
+		  e.health = e.health - 1
+		  if e.health < 0 then
+		    e.health = 0
+		  end
 		  if PlayerHealth <= 0 then
   		  ShootRateMult = 0.25
   		  update_shoot_rate ()
-  		  PlayerHealth = 100
 			  Enemies = {}
 			  Bullets = {}
 			  Items = {}
@@ -267,6 +300,9 @@ function love.update(dt)
 			  love.audio.stop()
 			  love.audio.play(music)
 			  title_start = socket.gettime()
+  		  PlayerHealth = 100
+        ShipSpeed = 150
+        damage_mult = 1
 			end
 		end
 	end
@@ -343,16 +379,16 @@ function love.update(dt)
 		  Position = {x = math.random(0,1)*800-100, y = math.random(0,800)-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel*spritesel*10,
-		  maxhealth = spritesel*spritesel*10
+		  health = spritesel^2.5*10,
+		  maxhealth = spritesel^2.5*10
 	  }
 		table.insert(Enemies,Enemy)
 	  local Enemy = {
 		  Position = {x = math.random(0,800)-100, y = math.random(0,1)*800-100},
 		  Direction = 0,
 		  sprite = spritesel,
-		  health = spritesel*spritesel*10,
-		  maxhealth = spritesel*spritesel*10
+		  health = spritesel*spritesel*spritesel*10,
+		  maxhealth = spritesel*spritesel*spritesel*10
 	  }
 		table.insert(Enemies,Enemy)
 	end
@@ -385,8 +421,12 @@ function love.draw()
 	for ii,i in pairs(Items) do
 	  if i.type == "Health" then
   	  love.graphics.draw(RepairImage,i.x,i.y,0,1,1,24,24)
-  	else
+  	elseif i.type == "Speed" then
   	  love.graphics.draw(SpeedImage,i.x,i.y,0,1,1,24,24)
+  	elseif i.type == "Damage" then
+  	  love.graphics.draw(DamageImage,i.x,i.y,0,1,1,24,24)
+  	else
+  	  love.graphics.draw(RateImage,i.x,i.y,0,1,1,24,24)
   	end
 	end
 	for i,v in pairs(Enemies) do
@@ -402,8 +442,11 @@ function love.draw()
   love.graphics.print('Top Score:'..topscore, 640, 40 + 16)
   love.graphics.print('Weapon:'..bullettype, 640, 40 + 32)
   love.graphics.print('Fire Rate:'..round(1/ShootRate,2).."/s", 640, 40 + 48)
-  love.graphics.print('Health:'..PlayerHealth.."/100", 640, 40 + 64)
-	love.graphics.draw(hb[curhealth],640,40 + 80,math.pi/2,3,16,0,8)
+  love.graphics.print('Damage Multiplier:'..round(damage_mult,2).."x", 640, 40 + 64)
+  --
+  love.graphics.print('Speed:'..round(ShipSpeed,2), 640, 40 + 80)
+  love.graphics.print('Health:'..PlayerHealth.."/100", 640, 40 + 96)
+	love.graphics.draw(hb[curhealth],640,40 + 112,math.pi/2,3,16,0,8)
   love.graphics.setColor(255, 255, 255, math.random(64,192))
 	if title_start + 3 > socket.gettime() then
 	  love.graphics.draw(TitleImage,math.random(-5,5),math.random(-5,5)+200,0,.75,.75)
