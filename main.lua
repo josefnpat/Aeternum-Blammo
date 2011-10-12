@@ -141,7 +141,7 @@ local escape_dialog = false
 
 function love.keypressed(key)   -- we do not need the unicode, so we can leave it out
   if key == "escape" then
-    escape_dialog = true
+    escape_dialog = not escape_dialog
   elseif key == "1" then
     bullettype = "Missile"
     update_shoot_rate()
@@ -236,6 +236,7 @@ function love.update(dt)
 		    closest.y = e.Position.y
 		  end
 		
+
 		  if distance < (EnemySize[e.sprite]/2+ShipSize/2)*EnemyScale.x then -- extra div for scale
 		    PlayerHealth = PlayerHealth - 1
 		    e.health = e.health - 1
@@ -357,6 +358,10 @@ function love.update(dt)
 end
 function love.draw()
   if escape_dialog then
+    love.graphics.setColor(255, 255, 255, math.random(64,192))
+    love.graphics.draw(TitleImage,math.random(-5,5),math.random(-5,5)+200,0,1,1)
+    love.graphics.draw(TitleImage,0,200,0,1,1)
+    love.graphics.setColor(255, 255, 255, 255)
     love.graphics.print('Game Paused. Are you sure you want to quit? (y/n)', 200, 300)
   else
     love.graphics.setColor(255, 255, 255, 192)
