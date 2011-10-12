@@ -6,10 +6,10 @@ love.audio.play(music)
 local playernum = 1
 
 local InitEnemyRate = 1.5
-local BulletSpeed = 300
+local BulletSpeed = 450
 local ShipSpeed = 150
 local InitEnemySpeed = 25
-local ShipSize = 128
+local ShipSize = 64
 local BulletSize = 48
 
 math.randomseed(os.time())
@@ -19,7 +19,7 @@ local Ship = {
 }
 local TitleImage = love.graphics.newImage("assets/title.png")
 local ShipImage = love.graphics.newImage("assets/player1.png")
-local ShipScale = {x = .5, y = .5}
+local ShipScale = {x = 1, y = 1}
 local ShipOffset = {x = ShipImage:getWidth()/2,y = ShipImage:getHeight()/2}
 
 local RepairImage = love.graphics.newImage("assets/repair.png")
@@ -183,68 +183,17 @@ function love.update(dt)
 		for ei,e in pairs(Enemies) do
 			distance = ((e.Position.x-b.Position.x)^2+(e.Position.y-b.Position.y)^2)^0.5
 			if distance < (EnemySize[e.sprite]/2+BulletSize/2)*EnemyScale.x then
-			  if e.health < 1 then
-			    local Boom = {
-			      x = e.Position.x,
-			      y = e.Position.y,
-			      time = socket.gettime()
-			    }
-  				table.insert(exp,Boom)
-  				if e.Position.x < 12 then
-  				  e.Position.x = 12
-  				end
-  				if e.Position.x > 588 then
-  				  e.Position.x = 588
-  				end
-  				if e.Position.y < 12 then
-  				  e.Position.y = 12
-  				end
-  				if e.Position.y > 588 then
-  				  e.Position.y = 588
-  				end
-  				if math.random(1,10) == 1 then
-    				local Item = {
-    				  type = "Rate",
-		          x = e.Position.x,
-		          y = e.Position.y
-    				}
-    				table.insert(Items,Item)
-  				elseif math.random(1,10) == 1 then
-    				local Item = {
-    				  type = "Damage",
-		          x = e.Position.x,
-		          y = e.Position.y
-    				}
-    				table.insert(Items,Item)
-  				elseif math.random(1,10) == 1 then
-    				local Item = {
-    				  type = "Speed",
-		          x = e.Position.x,
-		          y = e.Position.y
-    				}
-    				table.insert(Items,Item)
-  				elseif math.random(1,10) == 1 then
-    				local Item = {
-    				  type = "Health",
-			        x = e.Position.x,
-			        y = e.Position.y
-    				}
-    				table.insert(Items,Item)
-    		  end
-  				table.remove(Enemies,ei)
-			  else
-			    if b.Type == "Missile" then
-			      e.health = e.health - 10 * damage_mult
-			    else
-			      e.health = e.health - 50 * damage_mult
-			    end
-			    if e.health < 0 then
-			      e.health = 0
-			    end
-			  end
+		    if b.Type == "Missile" then
+		      e.health = e.health - 5 * damage_mult
+		    else
+		      e.health = e.health - 25 * damage_mult
+		    end
+		    if e.health < 0 then
+		      e.health = 0
+		    end
 				table.remove(Bullets,bi)
 				score = score + 1
-				EnemyRate = EnemyRate - 0.0001
+				EnemyRate = EnemyRate - 0.0002
 				EnemySpeed = EnemySpeed + 0.01
 			end
 		end
@@ -261,6 +210,9 @@ function love.update(dt)
   }
 	--make Enemies move
 	for ei,e in pairs(Enemies) do
+	  if e.health < 1 then
+      enemy_explode(ei,e)
+    end
 	  local temp_width = EnemyImage[e.sprite]:getWidth()
 		e.Position.x = e.Position.x+(math.cos(e.Direction)*dt*EnemySpeed/(temp_width*1.5)*32)
 		e.Position.y = e.Position.y+(math.sin(e.Direction)*dt*EnemySpeed/(temp_width*1.5)*32)
@@ -269,7 +221,9 @@ function love.update(dt)
 		--collision detection with Ship(SIMPLE DISTANCE CHECK COLLISION DETECTION!!!)
 		distance = ((e.Position.x-Ship.Position.x)^2+(e.Position.y-Ship.Position.y)^2)^0.5
 		
-		if distance < closest.distance then
+		if distance < closest.distance and 
+		  e.Position.x < 600 and e.Position.x > 0 and 
+		  e.Position.y < 600 and e.Position.y > 0 then
 		  closest.distance = distance
 		  closest.x = e.Position.x
 		  closest.y = e.Position.y
@@ -344,28 +298,28 @@ function love.update(dt)
 	--make Enemy
 	if EnemyTimer > EnemyRate then
 		EnemyTimer = 0
-		--local spritesel = 9-round(math.log10(math.random(1,100000000))-round(math.log10(score))*.01)
     spritesel = 1
     local basemult = 100
-    if math.random(1,2) == 1 and score > 32 then
+    local progress = math.log(score);
+    if math.random(1,4) == 1 and score > 32 then
       spritesel = 2
     end
-    if math.random(1,4) == 1  and score > 64 then
+    if math.random(1,9) == 1  and score > 64 then
       spritesel = 3
     end
-    if math.random(1,8) == 1  and score > 128 then
+    if math.random(1,16) == 1  and score > 128 then
       spritesel = 4
     end
-    if math.random(1,16) == 1 and score > 256 then
+    if math.random(1,25) == 1 and score > 256 then
       spritesel = 5
     end
-    if math.random(1,32) == 1 and score > 512 then
+    if math.random(1,36) == 1 and score > 512 then
       spritesel = 6
     end
-    if math.random(1,64) == 1 and score > 1024 then
+    if math.random(1,49) == 1 and score > 1024 then
       spritesel = 7
     end
-    if math.random(1,128) == 1 and score > 2048 then
+    if math.random(1,64) == 1 and score > 2048 then
       spritesel = 8
     end
 		
@@ -407,7 +361,7 @@ function love.draw()
       cur = 15
       table.remove(exp,i)
     end
-		love.graphics.drawq(explosion,quad[cur],v.x-32,v.y-32)
+		love.graphics.drawq(explosion,quad[cur],v.x,v.y,0,v.sprite*.5,v.sprite*.5,32,32)
 	end
 	for i,v in pairs(Bullets) do
 	  cur = (round(socket.gettime() * 10) + i) % 5 
@@ -420,13 +374,13 @@ function love.draw()
 	end
 	for ii,i in pairs(Items) do
 	  if i.type == "Health" then
-  	  love.graphics.draw(RepairImage,i.x,i.y,0,1,1,24,24)
+  	  love.graphics.draw(RepairImage,i.x,i.y,i.d,1,1,24,24)
   	elseif i.type == "Speed" then
-  	  love.graphics.draw(SpeedImage,i.x,i.y,0,1,1,24,24)
+  	  love.graphics.draw(SpeedImage,i.x,i.y,i.d,1,1,24,24)
   	elseif i.type == "Damage" then
-  	  love.graphics.draw(DamageImage,i.x,i.y,0,1,1,24,24)
+  	  love.graphics.draw(DamageImage,i.x,i.y,i.d,1,1,24,24)
   	else
-  	  love.graphics.draw(RateImage,i.x,i.y,0,1,1,24,24)
+  	  love.graphics.draw(RateImage,i.x,i.y,i.d,1,1,24,24)
   	end
 	end
 	for i,v in pairs(Enemies) do
@@ -438,15 +392,15 @@ function love.draw()
 	love.graphics.draw(ShipImage,Ship.Position.x,Ship.Position.y,Ship.Direction,ShipScale.x,ShipScale.y,ShipOffset.x,ShipOffset.y)
 	local curhealth = round(PlayerHealth / 100 * 16,0)
   love.graphics.draw(SideImage,600,0)
-  love.graphics.print('Score:'..score, 640, 40)
-  love.graphics.print('Top Score:'..topscore, 640, 40 + 16)
-  love.graphics.print('Weapon:'..bullettype, 640, 40 + 32)
-  love.graphics.print('Fire Rate:'..round(1/ShootRate,2).."/s", 640, 40 + 48)
-  love.graphics.print('Damage Multiplier:'..round(damage_mult,2).."x", 640, 40 + 64)
+  love.graphics.print('Score:'..score, 628, 40)
+  love.graphics.print('Top Score:'..topscore, 628, 40 + 16)
+  love.graphics.print('Weapon:'..bullettype, 628, 40 + 32)
+  love.graphics.print('Fire Rate:'..round(1/ShootRate,2).."/s", 628, 40 + 48)
+  love.graphics.print('Damage Multiplier:'..round(damage_mult,2).."x", 628, 40 + 64)
   --
-  love.graphics.print('Speed:'..round(ShipSpeed,2), 640, 40 + 80)
-  love.graphics.print('Health:'..PlayerHealth.."/100", 640, 40 + 96)
-	love.graphics.draw(hb[curhealth],640,40 + 112,math.pi/2,3,16,0,8)
+  love.graphics.print('Speed:'..round(ShipSpeed,2), 628, 40 + 80)
+  love.graphics.print('Health:'..PlayerHealth.."/100", 628, 40 + 96)
+	love.graphics.draw(hb[curhealth],608,172,-math.pi/2,(600-172*2)/128,1,128,8)
   love.graphics.setColor(255, 255, 255, math.random(64,192))
 	if title_start + 3 > socket.gettime() then
 	  love.graphics.draw(TitleImage,math.random(-5,5),math.random(-5,5)+200,0,.75,.75)
@@ -457,4 +411,60 @@ end
 function round(num, idp)
   local mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
+end
+
+function enemy_explode(ei,e)
+  local Boom = {
+    x = e.Position.x,
+    y = e.Position.y,
+    sprite = e.sprite,
+    time = socket.gettime()
+  }
+	table.insert(exp,Boom)
+	if e.Position.x < 12 then
+	  e.Position.x = 12
+	end
+	if e.Position.x > 588 then
+	  e.Position.x = 588
+	end
+	if e.Position.y < 12 then
+	  e.Position.y = 12
+	end
+	if e.Position.y > 588 then
+	  e.Position.y = 588
+	end
+	if math.random(1,10) == 1 then
+		local Item = {
+		  type = "Rate",
+      x = e.Position.x,
+      y = e.Position.y,
+      d = e.Direction
+		}
+		table.insert(Items,Item)
+	elseif math.random(1,10) == 1 then
+		local Item = {
+		  type = "Damage",
+      x = e.Position.x,
+      y = e.Position.y,
+      d = e.Direction
+		}
+		table.insert(Items,Item)
+	elseif math.random(1,10) == 1 then
+		local Item = {
+		  type = "Speed",
+      x = e.Position.x,
+      y = e.Position.y,
+      d = e.Direction
+		}
+		table.insert(Items,Item)
+	elseif math.random(1,10) == 1 then
+		local Item = {
+		  type = "Health",
+      x = e.Position.x,
+      y = e.Position.y,
+      d = e.Direction
+		}
+		table.insert(Items,Item)
+  end
+	table.remove(Enemies,ei)
 end
