@@ -1,6 +1,8 @@
 require("socket")-- For socket.gettime()*1000
 
 music = love.audio.newSource("assets/space_party.mp3")
+
+love.audio.setVolume(0.25)
 love.audio.play(music)
 
 local playernum = 1
