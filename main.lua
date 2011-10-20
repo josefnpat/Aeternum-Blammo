@@ -195,7 +195,7 @@ function love.update(dt)
 		      if b.Type == "Missile" then
 		        e.health = e.health - 5 * damage_mult
 		      else
-		        e.health = e.health - 25 * damage_mult
+		        e.health = e.health - 10 * damage_mult
 		      end
 		      if e.health < 0 then
 		        e.health = 0
