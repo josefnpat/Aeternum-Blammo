@@ -12,7 +12,7 @@ esc - Quit
 
 Screenshot
 ----------
-<img src="https://github.com/josefnpat/Aeternum-Blammo/raw/master/assets/screenshot.png" />
+<img src="https://github.com/josefnpat/Aeternum-Blammo/raw/master/screenshot.png" />
 
 Credit
 ------
