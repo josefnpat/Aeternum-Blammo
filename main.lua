@@ -1,6 +1,7 @@
 require("socket")-- For socket.gettime()*1000
 
 music = love.audio.newSource("assets/space_party.mp3")
+music:setLooping(true)
 
 love.audio.setVolume(0.25)
 love.audio.play(music)
@@ -220,8 +221,8 @@ function love.update(dt)
 	  --make Enemies move
 	  for ei,e in pairs(Enemies) do
 	    if e.health < 1 then
-        enemy_explode(ei,e)
-      end
+              enemy_explode(ei,e)
+            end
 	    local temp_width = EnemyImage[e.sprite]:getWidth()
 		  e.Position.x = e.Position.x+(math.cos(e.Direction)*dt*EnemySpeed/(temp_width*1.5)*32)
 		  e.Position.y = e.Position.y+(math.sin(e.Direction)*dt*EnemySpeed/(temp_width*1.5)*32)
