@@ -154,7 +154,7 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
   elseif key == "f11" then
     love.graphics.toggleFullscreen()
   elseif key == "y" then
-    love.event.push("q")
+    love.event.quit()
   elseif key == "n" then
     escape_dialog = false
   end
