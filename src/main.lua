@@ -172,15 +172,17 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
       love.audio.setVolume(0.0)
     end
   elseif key == "=" then -- Increase volume
-    if music.volume <= 1.0 then
-      music.volume = music.volume + .1
-      love.audio.setVolume(music.volume)
+    music.volume = music.volume + .1
+    if music.volume > 1.0 then
+      music.volume = 1.0
     end
+    love.audio.setVolume(music.volume)
   elseif key == "-" then -- Decrease volume
-    if music.volume >= 0.0 then
-      music.volume = music.volume - .1
-      love.audio.setVolume(music.volume)
+    music.volume = music.volume - .1
+    if music.volume < 0 then
+      music.volume = 0
     end
+    love.audio.setVolume(music.volume)
   end
 end
 
