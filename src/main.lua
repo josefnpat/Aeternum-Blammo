@@ -2,7 +2,7 @@ require("socket")-- For socket.gettime()*1000
 
 music = {
   source = love.audio.newSource("assets/space_party.mp3"),
-  playing = true,
+  isMuted = false,
   volume = 0.2
 }
 music.source:setLooping(true)
@@ -164,12 +164,12 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
   elseif key == "n" then
     escape_dialog = false
   elseif key == "m" then -- Music stop/start
-    if music.playing then
-      music.playing = false
-      love.audio.setVolume(0.0)
-    else
-      music.playing = true
+    if music.isMuted then
+      music.isMuted = false
       love.audio.setVolume(music.volume)
+    else
+      music.isMuted = true
+      love.audio.setVolume(0.0)
     end
   elseif key == "=" then -- Increase volume
     if music.volume <= 1.0 then
