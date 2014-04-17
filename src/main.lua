@@ -10,7 +10,7 @@ music.source:setLooping(true)
 love.audio.setVolume(music.volume)
 love.audio.play(music.source)
 
-gunSound = love.audio.newSource("assets/gun.wav", "static")
+gunSound = love.audio.newSource("assets/gun.ogg", "static")
 
 local playernum = 1
 
@@ -324,6 +324,7 @@ function love.update(dt)
     --make bullets
     if love.mouse.isDown("r") or love.keyboard.isDown(" ") then
       if BulletTimer > ShootRate then
+        love.audio.stop(gunSound)
         love.audio.play(gunSound)
         BulletTimer = 0
         local Bullet = {
