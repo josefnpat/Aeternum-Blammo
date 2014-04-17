@@ -1,10 +1,16 @@
 require("socket")-- For socket.gettime()*1000
 
-music = love.audio.newSource("assets/space_party.mp3")
-music:setLooping(true)
+music = {
+  source = love.audio.newSource("assets/space_party.mp3"),
+  playing = true,
+  volume = 0.2
+}
+music.source:setLooping(true)
 
-love.audio.setVolume(0.25)
-love.audio.play(music)
+love.audio.setVolume(music.volume)
+love.audio.play(music.source)
+
+gunSound = love.audio.newSource("assets/gun.wav", "static")
 
 local playernum = 1
 
@@ -157,6 +163,24 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
     love.event.quit()
   elseif key == "n" then
     escape_dialog = false
+  elseif key == "m" then -- Music stop/start
+    if music.playing then
+      music.playing = false
+      love.audio.setVolume(0.0)
+    else
+      music.playing = true
+      love.audio.setVolume(music.volume)
+    end
+  elseif key == "=" then -- Increase volume
+    if music.volume <= 1.0 then
+      music.volume = music.volume + .1
+      love.audio.setVolume(music.volume)
+    end
+  elseif key == "-" then -- Decrease volume
+    if music.volume >= 0.0 then
+      music.volume = music.volume - .1
+      love.audio.setVolume(music.volume)
+    end
   end
 end
 
@@ -263,7 +287,7 @@ function love.update(dt)
           score = 0
           bullettype = "Missile"
           love.audio.stop()
-          love.audio.play(music)
+          love.audio.play(music.source)
           title_start = socket.gettime()
           PlayerHealth = 100
           ShipSpeed = 150
@@ -294,9 +318,11 @@ function love.update(dt)
         Ship.Position.y = 600
       end
     end
+
     --make bullets
-    if love.mouse.isDown("r") then
+    if love.mouse.isDown("r") or love.keyboard.isDown(" ") then
       if BulletTimer > ShootRate then
+        love.audio.play(gunSound)
         BulletTimer = 0
         local Bullet = {
           Position = {x = Ship.Position.x, y = Ship.Position.y},
@@ -306,6 +332,7 @@ function love.update(dt)
         table.insert(Bullets,Bullet)
       end
     end
+
     --make Enemy
     if EnemyTimer > EnemyRate then
       EnemyTimer = 0
