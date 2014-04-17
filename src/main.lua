@@ -380,7 +380,7 @@ function love.draw()
         cur = 15
         table.remove(exp,i)
       end
-      love.graphics.drawq(explosion,quad[cur],v.x,v.y,0,v.sprite*.5,v.sprite*.5,32,32)
+      love.graphics.draw(explosion,quad[cur],v.x,v.y,0,v.sprite*.5,v.sprite*.5,32,32)
     end
     for i,v in pairs(Bullets) do
       cur = (round(socket.gettime() * 10) + i) % 5 
@@ -389,7 +389,7 @@ function love.draw()
       else
         curimage = MineImage
       end
-      love.graphics.drawq(curimage,bulletquad[cur],v.Position.x,v.Position.y,v.Direction,BulletScale,BulletScale,BulletOffset,BulletOffset)
+      love.graphics.draw(curimage,bulletquad[cur],v.Position.x,v.Position.y,v.Direction,BulletScale,BulletScale,BulletOffset,BulletOffset)
     end
     for ii,i in pairs(Items) do
       if i.type == "Health" then
