@@ -306,7 +306,8 @@ function love.update(dt)
     end
   ]]--
     --make ship move
-    if love.mouse.isDown(1) then
+    distance = ((love.mouse.getX()-Ship.Position.x)^2+(love.mouse.getY()-Ship.Position.y)^2)^0.5
+    if love.mouse.isDown(1) and distance > 2 then
       Ship.Position.x = Ship.Position.x+(math.cos(Ship.Direction)*dt*ShipSpeed)
       if Ship.Position.x < 0 then
         Ship.Position.x = 0
