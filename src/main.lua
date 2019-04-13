@@ -158,9 +158,11 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
     bullettype = "Mine"
     update_shoot_rate()
   elseif key == "f11" then
-    love.graphics.toggleFullscreen()
+    love.window.setFullscreen(not love.window.getFullscreen(),"exclusive")
   elseif key == "y" then
-    love.event.quit()
+    if escape_dialog then
+      love.event.quit()
+    end
   elseif key == "n" then
     escape_dialog = false
   elseif key == "m" then -- Music stop/start
