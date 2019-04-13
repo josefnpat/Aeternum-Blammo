@@ -1,7 +1,7 @@
-require("socket")-- For socket.gettime()*1000
+socket = require("socket")-- For socket.gettime()*1000
 
 music = {
-  source = love.audio.newSource("assets/space_party.mp3"),
+  source = love.audio.newSource("assets/space_party.mp3","stream"),
   isMuted = false,
   volume = 0.2
 }
@@ -306,7 +306,7 @@ function love.update(dt)
     end
   ]]--
     --make ship move
-    if love.mouse.isDown("l") then
+    if love.mouse.isDown(1) then
       Ship.Position.x = Ship.Position.x+(math.cos(Ship.Direction)*dt*ShipSpeed)
       if Ship.Position.x < 0 then
         Ship.Position.x = 0
@@ -322,7 +322,7 @@ function love.update(dt)
     end
 
     --make bullets
-    if love.mouse.isDown("r") or love.keyboard.isDown(" ") then
+    if love.mouse.isDown(2) or love.keyboard.isDown("space") then
       if BulletTimer > ShootRate then
         love.audio.stop(gunSound)
         love.audio.play(gunSound)
