@@ -1,7 +1,7 @@
-require("socket")-- For socket.gettime()*1000
+socket = require("socket")-- For socket.gettime()*1000
 
 music = {
-  source = love.audio.newSource("assets/space_party.mp3"),
+  source = love.audio.newSource("assets/space_party.mp3","stream"),
   isMuted = false,
   volume = 0.2
 }
@@ -158,9 +158,11 @@ function love.keypressed(key)   -- we do not need the unicode, so we can leave i
     bullettype = "Mine"
     update_shoot_rate()
   elseif key == "f11" then
-    love.graphics.toggleFullscreen()
+    love.window.setFullscreen(not love.window.getFullscreen(),"exclusive")
   elseif key == "y" then
-    love.event.quit()
+    if escape_dialog then
+      love.event.quit()
+    end
   elseif key == "n" then
     escape_dialog = false
   elseif key == "m" then -- Music stop/start
@@ -306,7 +308,8 @@ function love.update(dt)
     end
   ]]--
     --make ship move
-    if love.mouse.isDown("l") then
+    distance = ((love.mouse.getX()-Ship.Position.x)^2+(love.mouse.getY()-Ship.Position.y)^2)^0.5
+    if love.mouse.isDown(1) and distance > 2 then
       Ship.Position.x = Ship.Position.x+(math.cos(Ship.Direction)*dt*ShipSpeed)
       if Ship.Position.x < 0 then
         Ship.Position.x = 0
@@ -322,7 +325,7 @@ function love.update(dt)
     end
 
     --make bullets
-    if love.mouse.isDown("r") or love.keyboard.isDown(" ") then
+    if love.mouse.isDown(2) or love.keyboard.isDown("space") then
       if BulletTimer > ShootRate then
         love.audio.stop(gunSound)
         love.audio.play(gunSound)
